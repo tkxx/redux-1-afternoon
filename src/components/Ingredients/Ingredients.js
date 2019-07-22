@@ -1,11 +1,13 @@
 import React, { Component } from "react";
+import store, { ADD_INGREDIENT } from "./../../store";
 import { Link } from "react-router-dom";
 
 class Ingredients extends Component {
   constructor(props) {
     super(props);
+    const reduxState = store.getState();
     this.state = {
-      ingredients: [],
+      ingredients: reduxState.ingredients,
       input: ""
     };
   }
@@ -14,12 +16,27 @@ class Ingredients extends Component {
       input: val
     });
   }
+
+  componentDidMount() {
+    store.subscribe(() => {
+      const reduxState = store.getState();
+      this.setState({
+        ingredients: reduxState.ingredients
+      });
+    });
+  }
+
   addIngredient() {
     // Send data to Redux state
+    store.dispatch({
+      type: ADD_INGREDIENT,
+      payload: this.state.input
+    });
     this.setState({
       input: ""
     });
   }
+
   render() {
     const ingredients = this.state.ingredients.map((ingredient, i) => {
       return <li key={i}>{ingredient}</li>;
@@ -28,17 +45,14 @@ class Ingredients extends Component {
       <div className="List forms">
         <h2>Ingredients:</h2>
         <div className="form_items_container">
-          <ul className='list'>{ingredients}</ul>
+          <ul className="list">{ingredients}</ul>
         </div>
         <div className="add_container">
           <input
             value={this.state.input}
             onChange={e => this.handleChange(e.target.value)}
           />
-          <button
-            className="add_button"
-            onClick={() => this.addIngredient()}
-          >
+          <button className="add_button" onClick={() => this.addIngredient()}>
             Add Ingredient
           </button>
         </div>
